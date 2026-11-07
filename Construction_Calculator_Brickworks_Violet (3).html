@@ -1,0 +1,258 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#35063E;color:#F6ECFA}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Construction Calculator - Brickworks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: two-column workbench – inputs on the left, live take-off sheet on the right; stacks on phones */
+:root{
+  --bg:#2A0530; --card:#42104D; --ink:#F6ECFA; --muted:#C9AAD6; --line:#68357A;
+  --brick:#D58BFF; --mortar:#B5ACCB; --ok:#6CC596; --chip:#52215F; --onaccent:#2A0530; --brk:#C7664C; --mrt:#8A7C9C; --pls:#BDB09A; --glass:#4A78A6; --door:#8A6A55;
+  --f-d:"Inter","Segoe UI","Arial",sans-serif; --f-n:"Inter","Segoe UI","Arial",sans-serif; --f-h:"Inter","Segoe UI","Arial",sans-serif; --f-m:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html{min-height:100%;background:#35063E}
+body{min-height:100vh;background:#35063E;color:var(--ink);font-family:var(--f-d);font-size:15px;-webkit-font-smoothing:antialiased}
+header{background:transparent;color:var(--ink)}
+header .in{max-width:1100px;margin:0 auto;padding-block:30px 14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header h1{margin:0;font-weight:800;font-size:clamp(26px,5.4vw,42px);letter-spacing:-.02em;line-height:1.1;text-wrap:balance}
+header p{margin:8px 0 0;opacity:.9;font-size:16px;font-weight:400}
+.wrap{max-width:1100px;margin:0 auto;padding-block:16px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:820px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;gap:14px;min-width:0}
+h2{margin:0;font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--brick)}
+.row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.row.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+label{display:grid;gap:5px;font-size:12px;color:var(--muted);font-weight:500}
+input,select{font:inherit;font-size:15px;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%;min-width:0}
+select{font-size:14px;padding-left:8px;padding-right:2px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--brick);outline-offset:1px}
+.seg{display:grid;grid-template-columns:1fr;gap:6px;border:1px solid var(--line);border-radius:14px;padding:5px;background:var(--bg)}
+.seg button{font-weight:600;font-size:14px;border:0;border-radius:10px;background:transparent;color:var(--muted);padding:10px 12px;cursor:pointer;text-align:left;transition:background .15s,color .15s}
+.seg button[aria-pressed="true"]{background:var(--brick);color:var(--onaccent)}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--ink)}
+.chk input{width:auto}
+.kpi{display:grid;gap:10px}
+.qty{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:8px}
+@media (max-width:560px){.qty{grid-template-columns:1fr}}
+.kpi .tot,.qty>div{background:var(--chip);border-radius:10px;padding:10px 12px;min-width:0}
+.kpi .tot b{font-size:clamp(28px,6vw,38px)}
+.kpi b{display:block;font-size:clamp(20px,4.5vw,28px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi small{color:var(--muted);font-size:12px}
+.kpi .tot{background:var(--brick);color:var(--onaccent)}.kpi .tot small{color:inherit;opacity:.85}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal}
+th{font-family:var(--f-h);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+tr.sub td{font-weight:700;border-top:2px solid var(--ink)}
+.steps{font-family:var(--f-m);font-size:12.5px;line-height:1.7;background:var(--bg);border-radius:10px;padding:10px 12px;overflow-x:auto;white-space:pre}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{font-weight:700;font-size:14px;border:0;border-radius:999px;background:var(--brick);color:var(--onaccent);padding:11px 20px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn svg{width:17px;height:17px;flex:none}
+.btn.alt{background:var(--chip);color:var(--ink)}
+.note{font-size:12px;color:var(--muted);line-height:1.5}
+a{color:var(--brick);font-weight:600;word-break:break-all}
+footer{grid-column:1/-1;text-align:center;color:rgba(255,255,255,.85);font-weight:600;font-size:13px;letter-spacing:.06em}
+.vizbox{display:grid;gap:8px;background:var(--chip);border-radius:12px;padding:12px;min-width:0}
+.vizbox svg{width:100%;height:auto;max-width:680px;margin:0 auto;display:block;background:var(--card);border-radius:8px}
+.v-brk{fill:var(--brk)}.v-mrt{fill:var(--mrt)}.v-pls{fill:var(--pls)}.v-door{fill:var(--door)}.v-glass{fill:var(--glass)}.v-knob{fill:var(--card)}
+.v-ol{stroke:var(--ink);stroke-width:1}
+.v-txt{font:12px var(--f-d);fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1px solid var(--line)}
+</style>
+
+<header><div class="in"><h1>Construction Calculator - Brickworks</h1><p>Quickly calculate brickwork cost with dynamic visualization</p></div></header>
+
+<main class="wrap">
+ <section class="card" aria-label="Inputs">
+  <div class="seg" role="group" aria-label="Units"><button id="u-ft" aria-pressed="true">Feet / inch</button><button id="u-m" aria-pressed="false">Metre / mm</button></div>
+
+  <h2>Wall</h2>
+  <div class="row">
+   <label><span>Length (<span class="lu">ft</span>)</span><input id="L" type="number" step="any" value="100"></label>
+   <label><span>Height (<span class="lu">ft</span>)</span><input id="H" type="number" step="any" value="10"></label>
+   <label>Thickness<select id="T"></select></label>
+  </div>
+  <div class="row">
+   <label>Doors (nos)<input id="nd" type="number" min="0" value="2"></label>
+   <label><span>Door W×H (<span class="lu">ft</span>)</span><input id="dd" value="3x7"></label>
+   <label>Windows (nos)<input id="nw" type="number" min="0" value="4"></label>
+  </div>
+  <div class="row two">
+   <label><span>Window W×H (<span class="lu">ft</span>)</span><input id="ww" value="4x4"></label>
+   <label>Brick wastage %<input id="wb" type="number" step="any" value="5"></label>
+  </div>
+
+  <h2>Brick & mortar</h2>
+  <div class="row two">
+   <label>Brick size<select id="bs">
+    <option value="8.75,4.25,2.75">8¾ × 4¼ × 2¾ in</option>
+    <option value="9,4.5,3">9 × 4½ × 3 in</option>
+    <option value="7.48,3.54,3.54">Modular 190×90×90 mm</option>
+    <option value="9.06,4.33,2.76">230×110×70 mm</option></select></label>
+   <label>Mortar joint<select id="jt"><option value="6">6 mm</option><option value="10" selected>10 mm</option><option value="12">12 mm</option><option value="18">18 mm</option><option value="custom">Custom…</option></select></label>
+  </div>
+  <label id="jtc-w" hidden>Custom mortar joint (mm)<input id="jtc" type="number" step="any" min="0" value="15"></label>
+  <div class="row two">
+   <label>Mortar mix (cement : sand)<select id="mm"><option value="4">1 : 4</option><option value="5">1 : 5</option><option value="6" selected>1 : 6</option></select></label>
+   <label>Dry multiplication factor<select id="df"><option value="1.33" selected>Sand mortar – 1.33</option><option value="1.55">Concrete – 1.55</option></select></label>
+  </div>
+
+  <h2>Plaster</h2>
+  <div class="row">
+   <label class="chk" style="grid-column:1/-1"><input id="pl" type="checkbox" checked> Include plaster</label>
+   <label>Sides<select id="ps"><option value="2">Both sides</option><option value="1">One side</option></select></label>
+   <label>Thickness<select id="pt"><option value="10">10 mm</option><option value="12" selected>12 mm</option><option value="15">15 mm</option><option value="20">20 mm</option><option value="custom">Custom…</option></select></label>
+   <label>Mix<select id="pm"><option value="3">1 : 3</option><option value="4" selected>1 : 4</option><option value="5">1 : 5</option><option value="6">1 : 6</option></select></label>
+  </div>
+  <label id="ptc-w" hidden>Custom plaster thickness (mm)<input id="ptc" type="number" step="any" min="0" value="16"></label>
+
+  <h2>Rates <span style="text-transform:none;letter-spacing:0;color:var(--muted)">(edit as per market rates)</span></h2>
+  <div class="row">
+   <label>Brick / nos<input id="rb" type="number" step="any" value="11"></label>
+   <label>Cement / bag<input id="rc" type="number" step="any" value="340"></label>
+   <label><span>Sand / (<span class="su">cft</span>)</span><input id="rs" type="number" step="any" value="55"></label>
+  </div>
+  <div class="row">
+   <label><span>Mason labour / (<span class="vu">cft</span>)</span><input id="rl" type="number" step="any" value="45"></label>
+   <label><span>Plaster labour / (<span class="au">sft</span>)</span><input id="rp" type="number" step="any" value="45"></label>
+   <label>Currency<input id="cur" value="Rs"></label>
+  </div>
+  <p class="note"><a href="http://www.linkedin.com/in/ravi-iitj/" target="_blank" rel="noopener">http://www.linkedin.com/in/ravi-iitj/</a></p>
+ </section>
+
+ <section class="card" aria-label="Results" aria-live="polite">
+  <div class="vizbox" aria-hidden="true"><h2>Live wall visual</h2><svg id="viz" viewBox="0 0 640 284" role="img"></svg>
+   <div class="legend"><span><i style="background:var(--brk)"></i>Brick</span><span><i style="background:var(--mrt)"></i>Mortar joint</span><span><i style="background:var(--pls)"></i>Plaster</span><span><i style="background:var(--door)"></i>Door</span><span><i style="background:var(--glass)"></i>Window</span></div>
+   <div class="note" id="vnote"></div></div>
+  <h2>Cost and Quantities</h2>
+  <div class="kpi">
+   <div class="tot"><b id="k-t">–</b><small>Total cost</small></div>
+   <div class="qty">
+    <div><b id="k-b">–</b><small>Bricks</small></div>
+    <div><b id="k-c">–</b><small>Cement bags (50 kg)</small></div>
+    <div><b id="k-s">–</b><small id="k-su">Sand</small></div>
+   </div>
+  </div>
+  <div class="tbl"><table id="tb"></table></div>
+  <h2>How it is calculated</h2>
+  <div class="steps" id="st"></div>
+  <div class="actions"><button class="btn" id="cp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Copy and share</button><button class="btn alt" id="rs0">Reset example</button></div>
+  <div class="note" id="cpmsg"></div>
+  <p class="note">Mortar: wet volume = wall volume − volume of the bricks themselves; dry volume = wet × dry factor (1.33 for sand mortar, 1.55 for concrete; bulking + voids). 1 bag cement = 50 kg = 1.25 cft (0.035 m³). Plaster dry volume = area × thickness × the same dry factor. Joint and plaster thickness are in mm. Add your own extra for frogs, broken bricks and site losses.</p>
+ </section>
+ <footer>RAVI KUMAR · MAGADH DEVELOPERS </footer>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+let metric=false;
+const FT3_M3=0.0283168, FT2_M2=0.092903, FT_M=0.3048;
+const THK={ft:[["4.5","4½ in (half brick)"],["9","9 in (one brick)"],["13.5","13½ in (1½ brick)"]],m:[["4.5","115 mm (half brick)"],["9","230 mm (one brick)"],["13.5","345 mm (1½ brick)"]]};
+function fillT(){const v=$('T').value||"9";$('T').innerHTML=THK[metric?'m':'ft'].map(([a,b])=>`<option value="${a}">${b}</option>`).join('');$('T').value=v}
+const fmt=(x,d=0)=>isFinite(x)?x.toLocaleString('en-US',{maximumFractionDigits:d,minimumFractionDigits:d}):'–';
+const pair=s=>{const m=String(s).toLowerCase().split(/[x×*]/).map(Number);return m.length===2&&m.every(n=>n>0)?m:[0,0]};
+function setUnits(m){
+ if(m===metric)return;
+ const k=m?FT_M:1/FT_M;
+ ['L','H'].forEach(id=>{const x=parseFloat($(id).value);if(isFinite(x))$(id).value=+(x*k).toFixed(3)});
+ ['dd','ww'].forEach(id=>{const[a,b]=pair($(id).value);$(id).value=`${+(a*k).toFixed(3)}x${+(b*k).toFixed(3)}`});
+ // sand & labour rates per unit volume/area
+ const v=m?1/FT3_M3:FT3_M3, a=m?1/FT2_M2:FT2_M2;
+ const cv=(id,f)=>{const x=parseFloat($(id).value);if(isFinite(x))$(id).value=+(x*f).toFixed(2)};cv('rs',v);cv('rl',v);cv('rp',a);
+ metric=m;$('u-ft').setAttribute('aria-pressed',!m);$('u-m').setAttribute('aria-pressed',m);
+ document.querySelectorAll('.lu').forEach(e=>e.textContent=m?'m':'ft');document.querySelectorAll('.su,.vu').forEach(e=>e.textContent=m?'m³':'cft');document.querySelectorAll('.au').forEach(e=>e.textContent=m?'m²':'sft');
+ fillT();calc();
+}
+function calc(){
+ const toFt=metric?1/FT_M:1, n=id=>parseFloat($(id).value)||0;
+ const L=n('L')*toFt,H=n('H')*toFt,T=parseFloat($('T').value)/12;
+ const [dw,dh]=pair($('dd').value).map(x=>x*toFt),[ww,wh]=pair($('ww').value).map(x=>x*toFt);
+ const open=n('nd')*dw*dh+n('nw')*ww*wh;
+ const area=Math.max(L*H-open,0), vol=area*T;
+ const mmv=(a,b)=>{const sel=$(a).value;return Math.max(sel==='custom'?(parseFloat($(b).value)||0):parseFloat(sel),0)};
+ $('jtc-w').hidden=$('jt').value!=='custom';$('ptc-w').hidden=$('pt').value!=='custom';
+ const jmm=mmv('jt','jtc'), ptmm=mmv('pt','ptc'), DF=parseFloat($('df').value)||1.33;
+ const [bl,bw,bh]=$('bs').value.split(',').map(Number), j=jmm/25.4;
+ const nomCft=(bl+j)*(bw+j)*(bh+j)/1728, actCft=bl*bw*bh/1728;
+ const bricksNet=vol/nomCft, bricks=Math.ceil(bricksNet*(1+n('wb')/100));
+ const wet=Math.max(vol-bricksNet*actCft,0), dry=wet*DF, mix=+$('mm').value;
+ const cemB_cft=dry/(1+mix), sandB=dry*mix/(1+mix), bagsB=cemB_cft/1.25;
+ const plOn=$('pl').checked, sides=+$('ps').value, pt=ptmm/25.4/12, pmix=+$('pm').value;
+ const parea=plOn?area*sides:0, pdry=parea*pt*DF, cemP=pdry/(1+pmix), sandP=pdry*pmix/(1+pmix), bagsP=cemP/1.25;
+ const bags=Math.ceil(bagsB+bagsP), sand=sandB+sandP;
+ // rates (sand/labour stored per current unit)
+ const sandRate=metric?n('rs')*FT3_M3:n('rs'), labV=metric?n('rl')*FT3_M3:n('rl'), labA=metric?n('rp')*FT2_M2:n('rp');
+ const c={bricks:bricks*n('rb'),cement:bags*n('rc'),sand:sand*sandRate,mason:vol*labV,plaster:parea*labA};
+ const total=Object.values(c).reduce((a,b)=>a+b,0), cur=$('cur').value||'';
+ const V=x=>metric?fmt(x*FT3_M3,2)+' m³':fmt(x,1)+' cft', A=x=>metric?fmt(x*FT2_M2,1)+' m²':fmt(x,0)+' sft';
+ $('k-b').textContent=fmt(bricks);$('k-c').textContent=fmt(bags);$('k-s').textContent=metric?fmt(sand*FT3_M3,2):fmt(sand,0);$('k-su').textContent=metric?'Sand (m³)':'Sand (cft)';$('k-t').textContent=cur+' '+fmt(total);
+ $('tb').innerHTML=`<tr><th>Item</th><th>Quantity</th><th>Rate</th><th>Amount</th></tr>
+  <tr><td>Bricks (incl. ${n('wb')}% wastage)</td><td>${fmt(bricks)} nos</td><td>${fmt(n('rb'),2)}</td><td>${fmt(c.bricks)}</td></tr>
+  <tr><td>Cement – brickwork ${fmt(bagsB,1)} + plaster ${fmt(bagsP,1)}</td><td>${fmt(bags)} bags</td><td>${fmt(n('rc'))}</td><td>${fmt(c.cement)}</td></tr>
+  <tr><td>Sand – brickwork ${V(sandB)} + plaster ${V(sandP)}</td><td>${V(sand)}</td><td>${fmt(n('rs'))}</td><td>${fmt(c.sand)}</td></tr>
+  <tr><td>Mason labour (brickwork)</td><td>${V(vol)}</td><td>${fmt(n('rl'))}</td><td>${fmt(c.mason)}</td></tr>
+  <tr><td>Plaster labour</td><td>${A(parea)}</td><td>${fmt(n('rp'))}</td><td>${fmt(c.plaster)}</td></tr>
+  <tr class="sub"><td>Total</td><td></td><td></td><td>${cur} ${fmt(total)}</td></tr>
+  <tr><td>Per ${metric?'m³':'cft'} of brickwork (all in)</td><td></td><td></td><td>${cur} ${fmt(vol>0?total/(metric?vol*FT3_M3:vol):0)}</td></tr>`;
+ $('st').textContent=
+`1  Wall area   = ${fmt(L,2)} × ${fmt(H,2)} ft − openings ${fmt(open,1)} sft = ${fmt(area,1)} sft
+2  Volume      = ${fmt(area,1)} × ${fmt(T*12,1)}"/12 = ${fmt(vol,1)} cft  (${fmt(vol*FT3_M3,2)} m³)
+3  1 brick with ${fmt(jmm,1)} mm joint = ${fmt(nomCft*1728,1)} in³ → ${fmt(1/nomCft,2)} bricks/cft  (${fmt(1/(nomCft*FT3_M3),0)} per m³)
+4  Bricks      = ${fmt(vol,1)} × ${fmt(1/nomCft,2)} = ${fmt(bricksNet,0)} + ${n('wb')}% = ${fmt(bricks)}
+5  Mortar wet  = ${fmt(vol,1)} − bricks' own volume ${fmt(bricksNet*actCft,1)} = ${fmt(wet,1)} cft
+   Mortar dry  = ${fmt(wet,1)} × ${DF} = ${fmt(dry,1)} cft  → mix 1:${mix}
+   Cement      = ${fmt(dry,1)} ÷ ${1+mix} ÷ 1.25 = ${fmt(bagsB,1)} bags · Sand = ${fmt(sandB,1)} cft
+6  Plaster     = ${plOn?`${fmt(area,0)} sft × ${sides} side = ${fmt(parea,0)} sft × ${fmt(ptmm,1)} mm × ${DF} = ${fmt(pdry,1)} cft dry (1:${pmix})`:'not included'}`;
+ window.__sum=`Brickwork estimate (${metric?fmt(n('L'),2)+'×'+fmt(n('H'),2)+' m':fmt(L,1)+'×'+fmt(H,1)+' ft'} wall, ${$('T').selectedOptions[0].text}, ${fmt(jmm,1)} mm joint${plOn?', '+fmt(ptmm,1)+' mm plaster':''}):\nBricks: ${fmt(bricks)}\nCement: ${fmt(bags)} bags\nSand: ${metric?fmt(sand*FT3_M3,2)+' m³':fmt(sand,0)+' cft'}\nTotal: ${cur} ${fmt(total)}\n— made with Construction Calculator - Brickworks, Ravi Kumar (MAGADH DEVELOPERS)`;
+ draw({L,H,T:T*12,dw,dh,ww,wh,nd:Math.floor(n('nd')),nw:Math.floor(n('nw')),bl,bw,bh,jmm,ptmm,plOn,sides,unit:metric?'m':'ft',Lv:n('L'),Hv:n('H')});
+}
+function draw(o){
+ const svg=$('viz'),R=(x,y,w,h,c,e='')=>`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(w,0).toFixed(1)}" height="${Math.max(h,0).toFixed(1)}" class="${c}" ${e}/>`;
+ const X=(x,y,t,e='')=>`<text x="${x}" y="${y}" class="v-txt" ${e}>${t}</text>`;
+ if(!(o.L>0&&o.H>0)){svg.innerHTML=X(320,140,'Enter wall length and height','text-anchor="middle"');$('vnote').textContent='';return}
+ const ex=28,ey=24,ew=412,eh=206,gy=ey+eh;
+ const s=Math.min(ew/o.L,eh/o.H),pw=o.L*s,ph=o.H*s,x0=ex+(ew-pw)/2,y0=gy-ph;
+ // brick pattern (running bond), enlarged if bricks would be too small to see
+ const ji=o.jmm/25.4,bpx=(o.bl+ji)/12*s,bpy=(o.bh+ji)/12*s,f=Math.max(1,Math.ceil(5/bpy)),BW=bpx*f,BH=bpy*f,jp=Math.max(ji/12*s*f,.7);
+ let g=`<defs><pattern id="bp" width="${BW}" height="${2*BH}" patternUnits="userSpaceOnUse" x="${x0}" y="${gy-2*BH}">${R(0,0,BW,2*BH,'v-mrt')}${R(0,0,BW-jp,BH-jp,'v-brk')}${R(BW/2,BH,BW-jp,BH-jp,'v-brk')}${R(-BW/2,BH,BW-jp,BH-jp,'v-brk')}</pattern></defs>`;
+ g+=R(x0,y0,pw,ph,'','fill="url(#bp)"');
+ if(o.plOn)g+=R(x0,y0,pw*.5,ph,'v-pls');
+ g+=R(x0,y0,pw,ph,'v-ol','fill="none"');
+ // doors and windows, spread evenly along the wall
+ const it=[];for(let i=0;i<Math.max(o.nd,o.nw);i++){if(i<o.nw)it.push(0);if(i<o.nd)it.push(1)}
+ const N=Math.min(it.length,60),sill=Math.min(3,Math.max(o.H-o.wh,0));
+ for(let k=0;k<N;k++){
+  const d=it[k],w=Math.min(d?o.dw:o.ww,o.L)*s,h=Math.min(d?o.dh:o.wh,o.H)*s;
+  if(!(w>0&&h>0))continue;
+  const cx=x0+(k+.5)/N*pw,x=Math.max(x0,Math.min(cx-w/2,x0+pw-w)),y=d?gy-h:Math.max(y0,gy-sill*s-h);
+  g+=R(x,y,w,h,d?'v-door v-ol':'v-glass v-ol');
+  g+=d?`<circle cx="${(x+w*.82).toFixed(1)}" cy="${(y+h*.55).toFixed(1)}" r="${Math.max(1.2,w*.05).toFixed(1)}" class="v-knob"/>`:`<path d="M${(x+w/2).toFixed(1)} ${y.toFixed(1)}V${(y+h).toFixed(1)}M${x.toFixed(1)} ${(y+h/2).toFixed(1)}H${(x+w).toFixed(1)}" class="v-ol" fill="none"/>`;
+ }
+ g+=`<path d="M${ex-8} ${gy}H${ex+ew+8}" class="v-ol" fill="none"/>`;
+ g+=X(x0+pw/2,ey-8,`Length ${fmt(o.Lv,2)} ${o.unit}`,'text-anchor="middle"');
+ g+=`<text transform="translate(${ex-10} ${y0+ph/2}) rotate(-90)" text-anchor="middle" class="v-txt">Height ${fmt(o.Hv,2)} ${o.unit}</text>`;
+ g+=X(ex,gy+18,'Elevation – front view');
+ // cross-section (scaled): wall courses, joints, plaster coats
+ const Tm=o.T*25.4,pm=o.ptmm,pls=o.plOn?(o.sides==2?2:1):0,sc=Math.min(.4,150/((Tm+pls*pm)||1));
+ const pp=o.plOn?Math.max(pm*sc,2.5):0,lp=pp,rp=pls==2?pp:0,Wp=Tm*sc,tot=lp+Wp+rp,xs=475+(150-tot)/2,sx=xs+lp,ys0=30,ys1=gy;
+ const jx=Math.max(o.jmm*sc,1),bh2=o.bh*25.4*sc;let k=Math.max(1,Math.round(Tm/(o.bw*25.4)));if((Wp-(k-1)*jx)/k<2)k=1;const bw2=(Wp-(k-1)*jx)/k;
+ g+=`<clipPath id="sc"><rect x="${xs}" y="${ys0}" width="${tot}" height="${ys1-ys0}"/></clipPath><g clip-path="url(#sc)">`+R(sx,ys0,Wp,ys1-ys0,'v-mrt');
+ for(let i=0,y=ys1-jx-bh2;y+bh2>ys0&&i<100;i++,y-=bh2+jx)for(let c=0;c<k;c++)g+=R(sx+c*(bw2+jx),y,bw2,bh2,'v-brk');
+ if(pp){g+=R(xs,ys0,lp,ys1-ys0,'v-pls');if(rp)g+=R(sx+Wp,ys0,rp,ys1-ys0,'v-pls')}
+ g+='</g>';
+ const m=550;
+ g+=X(m,ey-8,'Cross-section','text-anchor="middle"')+X(m,gy+18,`Wall ${fmt(Tm,0)} mm`,'text-anchor="middle"')+X(m,gy+32,`Joint ${fmt(o.jmm,1)} mm`,'text-anchor="middle"');
+ if(o.plOn)g+=X(m,gy+46,`Plaster ${fmt(pm,1)} mm, ${pls==2?'both sides':'one side'}`,'text-anchor="middle"');
+ svg.innerHTML=g;
+ $('vnote').textContent=(f>1?'Bricks are enlarged in the elevation so they stay visible; the cross-section is to scale. ':'Elevation drawn to scale. ')+(o.plOn?'Left half of the wall shows the plaster coat over the bricks. ':'')+(it.length>60?'Showing the first 60 openings.':'');
+}
+document.querySelectorAll('input,select').forEach(e=>{e.addEventListener('input',calc);e.addEventListener('change',calc)});
+$('u-ft').onclick=()=>setUnits(false);$('u-m').onclick=()=>setUnits(true);
+$('cp').onclick=()=>{navigator.clipboard.writeText(window.__sum).then(()=>$('cpmsg').textContent='Copied. Paste it in WhatsApp, email or any app to share.',()=>{$('cpmsg').textContent=window.__sum})};
+$('rs0').onclick=()=>location.reload();
+fillT();$('T').value="9";calc();
+</script>
+
+</body></html>
